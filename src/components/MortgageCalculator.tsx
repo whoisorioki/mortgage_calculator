@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -32,12 +32,26 @@ const MortgageCalculator: React.FC<MortgageCalculatorProps> = ({
   className = "",
 }) => {
   const [showResults, setShowResults] = useState<boolean>(false);
-  const [mortgageInputs, setMortgageInputs] = useState<MortgageInputs>({
-    propertyPrice: 500000,
-    downPayment: 100000,
-    loanTerm: 30,
-    interestRate: 5.5,
-  });
+
+  // Load saved inputs from localStorage or use defaults
+  const getSavedInputs = (): MortgageInputs => {
+    try {
+      const saved = localStorage.getItem('mortgageInputs');
+      if (saved) {
+        return JSON.parse(saved);
+      }
+    } catch (error) {
+      console.warn('Failed to load saved mortgage inputs:', error);
+    }
+    return {
+      propertyPrice: 500000,
+      downPayment: 100000,
+      loanTerm: 30,
+      interestRate: 5.5,
+    };
+  };
+
+  const [mortgageInputs, setMortgageInputs] = useState<MortgageInputs>(getSavedInputs);
   const [mortgageResults, setMortgageResults] = useState<MortgageResults>({
     monthlyPayment: 0,
     principal: 0,
@@ -45,6 +59,15 @@ const MortgageCalculator: React.FC<MortgageCalculatorProps> = ({
     taxes: 0,
     insurance: 0,
   });
+
+  // Save inputs to localStorage whenever they change
+  useEffect(() => {
+    try {
+      localStorage.setItem('mortgageInputs', JSON.stringify(mortgageInputs));
+    } catch (error) {
+      console.warn('Failed to save mortgage inputs:', error);
+    }
+  }, [mortgageInputs]);
 
   const calculateMortgage = (inputs: MortgageInputs) => {
     const loanAmount = inputs.propertyPrice - inputs.downPayment;
@@ -101,10 +124,10 @@ const MortgageCalculator: React.FC<MortgageCalculatorProps> = ({
     <Card className={`w-full max-w-4xl mx-auto bg-white ${className}`}>
       <CardHeader className="text-center px-4 sm:px-6">
         <CardTitle className="text-xl sm:text-2xl font-bold text-gray-800">
-          Mortgage Calculator
+          Mortgage Payment Calculator
         </CardTitle>
         <CardDescription className="text-gray-600">
-          Plan your purchase with confidence
+          Get an estimate of your monthly mortgage payment
         </CardDescription>
       </CardHeader>
       <CardContent className="px-4 sm:px-6">

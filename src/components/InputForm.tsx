@@ -12,6 +12,18 @@ import {
 import { HelpCircle } from "lucide-react";
 
 interface InputFormProps {
+  initialValues?: {
+    propertyPrice: number;
+    downPayment: number;
+    loanTerm: number;
+    interestRate: number;
+  };
+  onInputChange?: (inputs: {
+    propertyPrice: number;
+    downPayment: number;
+    loanTerm: number;
+    interestRate: number;
+  }) => void;
   onCalculate: (formData: {
     propertyPrice: number;
     downPayment: number;
@@ -20,11 +32,23 @@ interface InputFormProps {
   }) => void;
 }
 
-const InputForm = ({ onCalculate = () => {} }: InputFormProps) => {
-  const [propertyPrice, setPropertyPrice] = useState<string>("500000");
-  const [downPayment, setDownPayment] = useState<string>("100000");
-  const [loanTerm, setLoanTerm] = useState<number>(30);
-  const [interestRate, setInterestRate] = useState<string>("5.5");
+const InputForm = ({
+  initialValues,
+  onInputChange,
+  onCalculate = () => { }
+}: InputFormProps) => {
+  const [propertyPrice, setPropertyPrice] = useState<string>(
+    initialValues?.propertyPrice?.toString() || "500000"
+  );
+  const [downPayment, setDownPayment] = useState<string>(
+    initialValues?.downPayment?.toString() || "100000"
+  );
+  const [loanTerm, setLoanTerm] = useState<number>(
+    initialValues?.loanTerm || 30
+  );
+  const [interestRate, setInterestRate] = useState<string>(
+    initialValues?.interestRate?.toString() || "5.5"
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   const calculateDownPaymentPercentage = () => {
@@ -34,21 +58,41 @@ const InputForm = ({ onCalculate = () => {} }: InputFormProps) => {
     return ((payment / price) * 100).toFixed(1);
   };
 
+  const notifyInputChange = (updates: Partial<{
+    propertyPrice: string;
+    downPayment: string;
+    loanTerm: number;
+    interestRate: string;
+  }>) => {
+    if (onInputChange) {
+      const currentValues = {
+        propertyPrice: parseFloat(updates.propertyPrice || propertyPrice) || 0,
+        downPayment: parseFloat(updates.downPayment || downPayment) || 0,
+        loanTerm: updates.loanTerm || loanTerm,
+        interestRate: parseFloat(updates.interestRate || interestRate) || 0,
+      };
+      onInputChange(currentValues);
+    }
+  };
+
   const handlePropertyPriceChange = (
     e: React.ChangeEvent<HTMLInputElement>,
   ) => {
     const value = e.target.value.replace(/[^0-9]/g, "");
     setPropertyPrice(value);
+    notifyInputChange({ propertyPrice: value });
   };
 
   const handleDownPaymentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^0-9]/g, "");
     setDownPayment(value);
+    notifyInputChange({ downPayment: value });
   };
 
   const handleInterestRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value.replace(/[^0-9.]/g, "");
     setInterestRate(value);
+    notifyInputChange({ interestRate: value });
   };
 
   const validateForm = () => {
@@ -93,7 +137,7 @@ const InputForm = ({ onCalculate = () => {} }: InputFormProps) => {
   return (
     <div className="w-full bg-white rounded-xl p-4 sm:p-6">
       <h2 className="text-lg sm:text-xl font-semibold mb-4 sm:mb-6 text-center">
-        Estimate Your Monthly Payment
+        Enter Your Home Details
       </h2>
 
       <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
@@ -109,7 +153,7 @@ const InputForm = ({ onCalculate = () => {} }: InputFormProps) => {
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>The total purchase price of the property</p>
+                    <p>The total purchase price of the home you want to buy</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -145,7 +189,7 @@ const InputForm = ({ onCalculate = () => {} }: InputFormProps) => {
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>The initial payment you make upfront</p>
+                    <p>The amount you'll pay upfront when buying the home</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -179,9 +223,8 @@ const InputForm = ({ onCalculate = () => {} }: InputFormProps) => {
                   <Button variant="ghost" size="icon" className="h-5 w-5 p-0">
                     <HelpCircle className="h-4 w-4 text-muted-foreground" />
                   </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>The length of time to repay the loan</p>
+                </TooltipTrigger>                  <TooltipContent>
+                  <p>How many years you'll take to pay back the loan</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -192,7 +235,10 @@ const InputForm = ({ onCalculate = () => {} }: InputFormProps) => {
                 key={term}
                 type="button"
                 variant={loanTerm === term ? "default" : "outline"}
-                onClick={() => setLoanTerm(term)}
+                onClick={() => {
+                  setLoanTerm(term);
+                  notifyInputChange({ loanTerm: term });
+                }}
                 className="flex-1"
               >
                 {term} years
@@ -213,7 +259,7 @@ const InputForm = ({ onCalculate = () => {} }: InputFormProps) => {
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>The annual interest rate for your mortgage</p>
+                    <p>The yearly interest rate the lender charges on your loan</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -241,7 +287,7 @@ const InputForm = ({ onCalculate = () => {} }: InputFormProps) => {
           type="submit"
           className="w-full bg-blue-600 hover:bg-blue-700 text-white"
         >
-          Calculate Payment
+          Calculate My Monthly Payment
         </Button>
       </form>
     </div>
