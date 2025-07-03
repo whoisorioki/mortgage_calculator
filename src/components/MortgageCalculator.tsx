@@ -74,12 +74,28 @@ const MortgageCalculator: React.FC<MortgageCalculatorProps> = ({
     const monthlyInterestRate = inputs.interestRate / 100 / 12;
     const numberOfPayments = inputs.loanTerm * 12;
 
-    // Calculate monthly payment using the mortgage formula
-    const monthlyPayment =
-      (loanAmount *
-        (monthlyInterestRate *
-          Math.pow(1 + monthlyInterestRate, numberOfPayments))) /
-      (Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1);
+    // Handle edge case where interest rate is 0
+    let monthlyPrincipalAndInterest;
+    if (monthlyInterestRate === 0) {
+      monthlyPrincipalAndInterest = loanAmount / numberOfPayments;
+    } else {
+      // Calculate monthly payment using the mortgage formula
+      monthlyPrincipalAndInterest =
+        (loanAmount *
+          (monthlyInterestRate *
+            Math.pow(1 + monthlyInterestRate, numberOfPayments))) /
+        (Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1);
+    }
+
+    // Calculate first month's interest and principal (for display purposes)
+    let monthlyInterest, monthlyPrincipal;
+    if (monthlyInterestRate === 0) {
+      monthlyInterest = 0;
+      monthlyPrincipal = monthlyPrincipalAndInterest;
+    } else {
+      monthlyInterest = loanAmount * monthlyInterestRate;
+      monthlyPrincipal = monthlyPrincipalAndInterest - monthlyInterest;
+    }
 
     // Estimate taxes (1% of property value annually)
     const monthlyTaxes = (inputs.propertyPrice * 0.01) / 12;
@@ -87,15 +103,12 @@ const MortgageCalculator: React.FC<MortgageCalculatorProps> = ({
     // Estimate insurance (0.5% of property value annually)
     const monthlyInsurance = (inputs.propertyPrice * 0.005) / 12;
 
-    // Calculate principal and interest portions
-    const principalAndInterest = monthlyPayment;
-    const principal = principalAndInterest * 0.7; // Simplified approximation
-    const interest = principalAndInterest * 0.3; // Simplified approximation
+    const totalMonthlyPayment = monthlyPrincipalAndInterest + monthlyTaxes + monthlyInsurance;
 
     setMortgageResults({
-      monthlyPayment: monthlyPayment + monthlyTaxes + monthlyInsurance,
-      principal,
-      interest,
+      monthlyPayment: totalMonthlyPayment,
+      principal: monthlyPrincipal,
+      interest: monthlyInterest,
       taxes: monthlyTaxes,
       insurance: monthlyInsurance,
     });

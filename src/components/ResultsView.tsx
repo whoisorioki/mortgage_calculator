@@ -65,7 +65,6 @@ const ResultsView = ({
 
   // State for view management
   const [showAmortization, setShowAmortization] = useState<boolean>(false);
-  const [hoveredSegment, setHoveredSegment] = useState<string | null>(null);
 
   // Calculate payment breakdown
   const loanAmount = adjustedPropertyPrice - adjustedDownPayment;
@@ -347,74 +346,38 @@ const ResultsView = ({
           </TooltipProvider>
         </div>
 
-        {/* Solid Pie Chart Visualization with Hover */}
-        <div className="relative h-48 w-48 sm:h-64 sm:w-64 mx-auto mb-4">
-          <svg viewBox="0 0 200 200" className="h-full w-full">
-            {segmentsWithPositions.map((segment, index) => {
-              const centerX = 100;
-              const centerY = 100;
-              const radius = 80;
-
-              // Convert angles to radians
-              const startAngleRad = (segment.startAngle - 90) * (Math.PI / 180);
-              const endAngleRad = (segment.endAngle - 90) * (Math.PI / 180);
-
-              // Calculate path coordinates
-              const x1 = centerX + radius * Math.cos(startAngleRad);
-              const y1 = centerY + radius * Math.sin(startAngleRad);
-              const x2 = centerX + radius * Math.cos(endAngleRad);
-              const y2 = centerY + radius * Math.sin(endAngleRad);
-
-              const largeArcFlag = segment.percentage > 50 ? 1 : 0;
-
-              const pathData = [
-                `M ${centerX} ${centerY}`,
-                `L ${x1} ${y1}`,
-                `A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2}`,
-                "Z",
-              ].join(" ");
-
-              return (
-                <TooltipProvider key={segment.name}>
-                  <Tooltip open={hoveredSegment === segment.name}>
-                    <TooltipTrigger asChild>
-                      <path
-                        d={pathData}
-                        fill={segment.color}
-                        stroke="white"
-                        strokeWidth="2"
-                        className="cursor-pointer transition-all duration-200 hover:opacity-80"
-                        onMouseEnter={() => setHoveredSegment(segment.name)}
-                        onMouseLeave={() => setHoveredSegment(null)}
-                      />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <div className="text-center">
-                        <p className="font-medium">{segment.name}</p>
-                        <p className="text-sm">${segment.value.toFixed(2)}</p>
-                        <p className="text-xs">
-                          {segment.percentage.toFixed(1)}%
-                        </p>
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              );
-            })}
-          </svg>
-        </div>
-
-        {/* Legend */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm">
+        {/* Payment Breakdown Bar Chart */}
+        <div className="space-y-3">
           {pieSegments.map((segment) => (
-            <div key={segment.name} className="flex items-center">
-              <div
-                className="w-3 h-3 rounded-full mr-2 flex-shrink-0"
-                style={{ backgroundColor: segment.color }}
-              ></div>
-              <span className="truncate">
-                {segment.name}: ${segment.value.toFixed(2)}
-              </span>
+            <div key={segment.name} className="space-y-1">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <div
+                    className="w-3 h-3 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: segment.color }}
+                  ></div>
+                  <span className="text-sm font-medium text-gray-700">
+                    {segment.name}
+                  </span>
+                </div>
+                <div className="text-right">
+                  <span className="text-sm font-semibold text-gray-800">
+                    ${segment.value.toFixed(0)}
+                  </span>
+                  <span className="text-xs text-gray-500 ml-1">
+                    ({segment.percentage.toFixed(1)}%)
+                  </span>
+                </div>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-3">
+                <div
+                  className="h-3 rounded-full transition-all duration-300 ease-in-out"
+                  style={{
+                    backgroundColor: segment.color,
+                    width: `${segment.percentage}%`,
+                  }}
+                ></div>
+              </div>
             </div>
           ))}
         </div>

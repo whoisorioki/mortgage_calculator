@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import {
   Tooltip,
   TooltipContent,
@@ -215,35 +216,51 @@ const InputForm = ({
         </div>
 
         <div className="space-y-2">
-          <div className="flex items-center gap-1">
-            <Label htmlFor="loanTerm">Loan Term</Label>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" className="h-5 w-5 p-0">
-                    <HelpCircle className="h-4 w-4 text-muted-foreground" />
-                  </Button>
-                </TooltipTrigger>                  <TooltipContent>
-                  <p>How many years you'll take to pay back the loan</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1">
+              <Label htmlFor="loanTerm">Loan Term</Label>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-5 w-5 p-0">
+                      <HelpCircle className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>How many years you'll take to pay back the loan</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            <span className="text-sm font-semibold text-gray-800">
+              {loanTerm} years
+            </span>
           </div>
-          <div className="flex flex-col sm:flex-row gap-2">
-            {[15, 20, 30].map((term) => (
-              <Button
-                key={term}
-                type="button"
-                variant={loanTerm === term ? "default" : "outline"}
-                onClick={() => {
-                  setLoanTerm(term);
-                  notifyInputChange({ loanTerm: term });
-                }}
-                className="flex-1"
-              >
-                {term} years
-              </Button>
-            ))}
+          <div className="space-y-3">
+            <Slider
+              value={[loanTerm]}
+              onValueChange={(value) => {
+                setLoanTerm(value[0]);
+                notifyInputChange({ loanTerm: value[0] });
+              }}
+              max={40}
+              min={10}
+              step={1}
+              className="w-full"
+              data-testid="loan-term-slider"
+            />
+            {/* Hidden input for test automation */}
+            <input
+              type="hidden"
+              id="loan-term-value"
+              value={loanTerm}
+              data-testid="loan-term-value"
+              readOnly
+            />
+            <div className="flex justify-between text-xs text-gray-500">
+              <span>10 years</span>
+              <span>40 years</span>
+            </div>
           </div>
         </div>
 
