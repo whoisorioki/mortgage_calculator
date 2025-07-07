@@ -66,29 +66,23 @@ const ResultsView = ({
   // State for view management
   const [showAmortization, setShowAmortization] = useState<boolean>(false);
 
-  // Calculate payment breakdown
+  // Use the results passed from MortgageCalculator
+  const {
+    monthlyPayment: calculatedMonthlyPayment = 0,
+    principal: principalAmount = 0,
+    interest: interestAmount = 0,
+    taxes: propertyTax = 0,
+    insurance = 0
+  } = results || {};
+
+  // These calculations are only for the amortization table
   const loanAmount = adjustedPropertyPrice - adjustedDownPayment;
   const monthlyInterestRate = adjustedInterestRate / 100 / 12;
   const numberOfPayments = actualLoanTerm * 12;
-
-  // Calculate principal and interest (P&I) payment
-  const principalAndInterest =
-    (loanAmount *
-      (monthlyInterestRate *
-        Math.pow(1 + monthlyInterestRate, numberOfPayments))) /
+  const principalAndInterest = monthlyInterestRate === 0 ?
+    (loanAmount / numberOfPayments) :
+    (loanAmount * monthlyInterestRate * Math.pow(1 + monthlyInterestRate, numberOfPayments)) /
     (Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1);
-
-  // Estimate taxes and insurance (for demonstration purposes)
-  const propertyTax = (adjustedPropertyPrice * 0.012) / 12; // Assuming 1.2% annual property tax
-  const insurance = (adjustedPropertyPrice * 0.005) / 12; // Assuming 0.5% annual insurance
-
-  // Calculate total monthly payment
-  const calculatedMonthlyPayment =
-    principalAndInterest + propertyTax + insurance;
-
-  // Calculate breakdown amounts
-  const principalAmount = principalAndInterest * 0.7;
-  const interestAmount = principalAndInterest * 0.3;
 
   // Calculate percentages for pie chart
   const principalPercentage =

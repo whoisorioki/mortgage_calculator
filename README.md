@@ -2,8 +2,6 @@
 
 A modern, responsive mortgage calculator built with React, TypeScript, and Tailwind CSS. This application helps users estimate monthly mortgage payments and analyze loan details for home purchases.
 
-![Mortgage Calculator](./reference-image.png)
-
 ## Features
 
 - **Mortgage Payment Calculation**: Calculate monthly payments based on property price, down payment, loan term, and interest rate
@@ -56,13 +54,28 @@ npm run dev
 - `npm run build` - Build the application for production
 - `npm run preview` - Preview the production build
 - `npm run lint` - Run ESLint for code quality checks
+- `npm run test:e2e` - Run end-to-end tests with Playwright
+
+## Testing
+
+The application includes comprehensive end-to-end tests using Playwright:
+
+```bash
+# Run all tests
+./run-tests.sh dev
+
+# View test results
+npx playwright show-report
+```
+
+The test suite covers 8 mortgage calculation scenarios with various loan amounts, terms, and interest rates to ensure calculation accuracy.
 
 ## Project Structure
 
 ```
 src/
 ├── components/
-│   ├── home.tsx              # Main page component
+│   ├── Home.tsx              # Main page component
 │   ├── MortgageCalculator.tsx # Main calculator logic and state management
 │   ├── InputForm.tsx         # Form for mortgage parameters input
 │   ├── ResultsView.tsx       # Results display with charts and breakdown
@@ -72,6 +85,13 @@ src/
 ├── App.tsx                   # Root application component
 ├── main.tsx                  # Application entry point
 └── index.css                 # Global styles
+
+tests/
+└── mortgage-calculator.spec.ts # E2E test scenarios
+
+Scripts:
+├── run-tests.sh             # Comprehensive test runner
+└── test-scenarios.sh        # Test data scenarios
 ```
 
 ## How It Works

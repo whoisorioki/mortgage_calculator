@@ -87,21 +87,19 @@ const MortgageCalculator: React.FC<MortgageCalculatorProps> = ({
         (Math.pow(1 + monthlyInterestRate, numberOfPayments) - 1);
     }
 
-    // Calculate first month's interest and principal (for display purposes)
-    let monthlyInterest, monthlyPrincipal;
-    if (monthlyInterestRate === 0) {
-      monthlyInterest = 0;
-      monthlyPrincipal = monthlyPrincipalAndInterest;
-    } else {
-      monthlyInterest = loanAmount * monthlyInterestRate;
-      monthlyPrincipal = monthlyPrincipalAndInterest - monthlyInterest;
-    }
+    // Calculate the first month's interest payment
+    const monthlyInterest = loanAmount * monthlyInterestRate;
+    // The remainder of the payment goes to principal
+    const monthlyPrincipal = monthlyPrincipalAndInterest - monthlyInterest;
 
-    // Estimate taxes (1% of property value annually)
-    const monthlyTaxes = (inputs.propertyPrice * 0.01) / 12;
+    // Estimate taxes using industry standard of $2000 + 0.8% of property value annually
+    const annualTaxRate = 0.008; // 0.8%
+    const baseTax = 2000; // Base tax amount
+    const monthlyTaxes = (baseTax + (inputs.propertyPrice * annualTaxRate)) / 12;
 
-    // Estimate insurance (0.5% of property value annually)
-    const monthlyInsurance = (inputs.propertyPrice * 0.005) / 12;
+    // Estimate insurance using typical rates ($3.50 per $1000 of property value annually)
+    const annualInsuranceRate = 3.50 / 1000; // $3.50 per $1000 of property value
+    const monthlyInsurance = (inputs.propertyPrice * annualInsuranceRate) / 12;
 
     const totalMonthlyPayment = monthlyPrincipalAndInterest + monthlyTaxes + monthlyInsurance;
 

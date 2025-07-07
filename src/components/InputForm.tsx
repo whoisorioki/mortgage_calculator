@@ -251,11 +251,28 @@ const InputForm = ({
             />
             {/* Hidden input for test automation */}
             <input
-              type="hidden"
+              type="number"
               id="loan-term-value"
               value={loanTerm}
               data-testid="loan-term-value"
-              readOnly
+              onChange={(e) => {
+                const value = parseInt(e.target.value) || 10;
+                const clampedValue = Math.max(10, Math.min(40, value));
+                setLoanTerm(clampedValue);
+                notifyInputChange({ loanTerm: clampedValue });
+              }}
+              min="10"
+              max="40"
+              step="1"
+              style={{
+                position: 'absolute',
+                left: '-9999px',
+                opacity: 0,
+                pointerEvents: 'auto', // Allow interaction with the hidden input
+                width: '1px',
+                height: '1px'
+              }}
+              aria-hidden="false" // Make it accessible to Playwright
             />
             <div className="flex justify-between text-xs text-gray-500">
               <span>10 years</span>
